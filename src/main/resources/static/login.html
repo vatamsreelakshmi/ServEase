@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Sign Up - ServEase</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            background: #f0f7f8;
+            font-family: Arial, sans-serif;
+        }
+
+        .auth-container {
+            max-width: 420px;
+            margin: 65px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .auth-container h1 {
+            text-align: center;
+            color: #087f8c;
+        }
+
+        .auth-container p {
+            text-align: center;
+            color: #666;
+        }
+
+        .auth-container label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .auth-container input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 7px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+        }
+
+        .auth-container button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 20px;
+            background: #087f8c;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .switch-link {
+            color: #087f8c;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #signupForm {
+            display: none;
+        }
+
+        #message {
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="auth-container">
+
+    <h1>ServEase</h1>
+    <p>Your Trusted Home Service Partner</p>
+
+    <form id="loginForm">
+        <h2>Welcome Back!</h2>
+
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" required>
+
+        <label>Password</label>
+        <input type="password" id="loginPassword" required>
+
+        <button type="submit">Login</button>
+
+        <p>Don't have an account?
+            <span class="switch-link" onclick="showSignup()">Sign Up</span>
+        </p>
+    </form>
+
+    <form id="signupForm">
+        <h2>Create Account</h2>
+
+        <label>Full Name</label>
+        <input type="text" id="signupName" required>
+
+        <label>Email Address</label>
+        <input type="email" id="signupEmail" required>
+
+        <label>Phone Number</label>
+        <input type="tel" id="signupPhone" required>
+
+        <label>Password</label>
+        <input type="password" id="signupPassword" minlength="6" required>
+
+        <button type="submit">Create Account</button>
+
+        <p>Already have an account?
+            <span class="switch-link" onclick="showLogin()">Login</span>
+        </p>
+    </form>
+
+    <div id="message"></div>
+
+</div>
+
+<script>
+    function showSignup() {
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("signupForm").style.display = "block";
+        document.getElementById("message").textContent = "";
+    }
+
+    function showLogin() {
+        document.getElementById("signupForm").style.display = "none";
+        document.getElementById("loginForm").style.display = "block";
+        document.getElementById("message").textContent = "";
+    }
+
+    // Connect Sign Up to the database
+document.getElementById("signupForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const user = {
+        name: document.getElementById("signupName").value,
+        email: document.getElementById("signupEmail").value,
+        phone: document.getElementById("signupPhone").value,
+        password: document.getElementById("signupPassword").value,
+        role: "USER"
+    };
+
+    try {
+        const response = await fetch("/api/users/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(user)
+        });
+
+        const message = await response.text();
+
+        document.getElementById("message").textContent =
+            response.ok ? "Registration successful! You can now log in." : message;
+
+    } catch (error) {
+        document.getElementById("message").textContent =
+            "Unable to connect to server.";
+    }
+});
+
+
+// Connect Login to the database
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const user = {
+        email: document.getElementById("loginEmail").value,
+        password: document.getElementById("loginPassword").value
+    };
+
+    try {
+        const response = await fetch("/api/users/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(user)
+        });
+
+        if (response.ok) {
+    const loggedInUser = await response.json();
+
+    localStorage.setItem("userId", loggedInUser.id);
+
+    alert("Login successful! Welcome to ServEase.");
+    window.location.replace("/");
+} else {
+    const message = await response.text();
+    document.getElementById("message").textContent = message;
+}
+
+    } catch (error) {
+        document.getElementById("message").textContent =
+            "Unable to connect to server.";
+    }
+});
+</script>
+
+</body>
+</html>

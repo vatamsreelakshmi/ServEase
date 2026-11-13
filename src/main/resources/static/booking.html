@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Service | ServEase</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            background: #f2f7f7;
+            font-family: Arial, sans-serif;
+        }
+
+        .booking-container {
+            max-width: 650px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .booking-container h1 {
+            text-align: center;
+            color: #087f8c;
+        }
+
+        .booking-container label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .booking-container input,
+        .booking-container textarea,
+        .booking-container select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 7px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            box-sizing: border-box;
+        }
+
+        .booking-container button,
+        .confirmation button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 22px;
+            background: #087f8c;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .confirmation {
+            max-width: 550px;
+            margin: 60px auto;
+            padding: 35px;
+            background: white;
+            border-radius: 18px;
+            text-align: center;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+        }
+
+        .success-icon {
+            font-size: 65px;
+            color: #16a36a;
+        }
+
+        .confirmation h1 {
+            color: #087f8c;
+        }
+
+        .confirmation-details {
+            text-align: left;
+            background: #f2f8f8;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            line-height: 2;
+        }
+
+        .booking-status {
+            display: inline-block;
+            background: #fff0cc;
+            color: #946200;
+            padding: 7px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .home-button {
+            background: #333 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="booking-container" id="booking-container">
+
+    <h1>Book Your Service</h1>
+
+    <p id="provider-details">Selected professional</p>
+
+    <form id="bookingForm">
+
+        <label>Customer Name</label>
+        <input type="text" id="customerName" required>
+
+        <label>Phone Number</label>
+        <input type="tel" id="phone" required>
+
+        <label>Select Service</label>
+        <select id="serviceType" required>
+            <option value="">Choose a Service</option>
+            <option value="Home Cleaning">Home Cleaning</option>
+            <option value="Maid Service">Maid Service</option>
+            <option value="Plumbing">Plumbing</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Elderly Care">Elderly Care</option>
+            <option value="Caretaking">Caretaking</option>
+            <option value="Cleaning">Cleaning</option>
+            <option value="Cooking">Cooking</option>
+        </select>
+
+        <label>Service Address</label>
+        <textarea id="address" required></textarea>
+
+        <label>Booking Date</label>
+        <input type="date" id="bookingDate" required>
+
+        <button type="submit">Confirm Booking</button>
+        <div class="form-group">
+            <label>Service Price</label>
+    <p id="servicePrice">Loading price...</p>
+    <label for="duration">Service Duration (Hours)</label>
+<input type="number" id="duration" min="1" value="1" required>
+
+<p id="totalPrice">Total Amount: ₹0</p>
+</div>
+    <label for="paymentMethod">Payment Method</label>
+    <select id="paymentMethod" name="paymentMethod" required>
+        <option value="">Select Payment Method</option>
+        <option value="CASH">Cash on Service</option>
+        <option value="UPI">UPI Payment</option>
+    </select>
+</div>
+<div class="form-group">
+    <label for="couponCode">Have a Coupon Code?</label>
+
+    <div style="display: flex; gap: 10px;">
+        <input
+            type="text"
+            id="couponCode"
+            placeholder="Enter coupon code"
+        >
+
+        <button type="button" onclick="applyCoupon()">
+            Apply
+        </button>
+    </div>
+
+    <p id="couponMessage"></p>
+    <p id="discountAmount">Discount: ₹0</p>
+    <p id="finalAmount">Final Amount: ₹0</p>
+</div>
+
+    </form>
+</div>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const providerId = params.get("providerId");
+const userId = localStorage.getItem("userId");
+
+document.getElementById("provider-details").textContent =
+    "Professional ID: " + (providerId || "Not selected");
+let discount = 0;
+let appliedCoupon = "";
+
+function applyCoupon() {
+    const coupon = document.getElementById("couponCode").value.trim().toUpperCase();
+    const duration = Number(document.getElementById("duration").value);
+    const subtotal = window.providerPrice * duration;
+    const message = document.getElementById("couponMessage");
+
+    discount = 0;
+
+    if (coupon === "WELCOME10") {
+        discount = subtotal * 0.10;
+        appliedCoupon = coupon;
+        message.textContent = "10% discount applied!";
+    } 
+    else if (coupon === "SERVE50" && subtotal >= 500) {
+        discount = 50;
+        appliedCoupon = coupon;
+        message.textContent = "₹50 discount applied!";
+    } 
+    else {
+        appliedCoupon = "";
+        message.textContent = "Invalid coupon or minimum bill ₹500 required.";
+    }
+
+    document.getElementById("discountAmount").textContent =
+        "Discount: ₹" + discount;
+
+    document.getElementById("finalAmount").textContent =
+        "Final Amount: ₹" + (subtotal - discount);
+}
+// Submit booking
+// Load selected provider price
+async function loadProviderPrice() {
+    try {
+        const response = await fetch("/api/providers/" + providerId);
+
+        if (!response.ok) {
+            throw new Error("Unable to load provider price");
+        }
+
+        const provider = await response.json();
+        window.providerPrice = Number(provider.pricePerHour);
+
+function calculateTotal() {
+    const duration = Number(document.getElementById("duration").value);
+    const total = window.providerPrice * duration;
+
+    document.getElementById("totalPrice").textContent =
+        "Total Amount: ₹" + total;
+        if (appliedCoupon) {
+    applyCoupon();
+} else {
+    document.getElementById("discountAmount").textContent = "Discount: ₹0";
+    document.getElementById("finalAmount").textContent = "Final Amount: ₹" + total;
+}
+}
+
+document.getElementById("duration").addEventListener("input", calculateTotal);
+calculateTotal();
+
+        document.getElementById("servicePrice").textContent =
+            "₹" + provider.pricePerHour + " per hour";
+
+    } catch (error) {
+        document.getElementById("servicePrice").textContent =
+            "Price unavailable";
+        console.error(error);
+    }
+}
+
+if (providerId) {
+    loadProviderPrice();
+}
+document.getElementById("bookingForm").addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    if (!userId) {
+        alert("Please log in before booking.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    if (!providerId) {
+        alert("Please select a professional first.");
+        return;
+    }
+
+    const customerName = document.getElementById("customerName").value.trim();
+    const serviceType = document.getElementById("serviceType").value;
+    const bookingDate = document.getElementById("bookingDate").value;
+    const address = document.getElementById("address").value;
+
+    const booking = {
+    userId: Number(userId),
+    providerId: Number(providerId),
+    bookingDate: bookingDate,
+    serviceType: serviceType,
+    status: "PENDING",
+    address: address,
+
+    originalAmount: window.providerPrice * Number(document.getElementById("duration").value),
+
+    discountAmount: discount,
+
+    totalAmount: Math.max(
+        0,
+        (window.providerPrice * Number(document.getElementById("duration").value)) - discount
+    ),
+
+    paymentMethod: document.getElementById("paymentMethod").value
+};
+
+    const submitButton = document.querySelector("#bookingForm button");
+    submitButton.disabled = true;
+    submitButton.textContent = "Processing...";
+
+    try {
+
+        const response = await fetch("/api/bookings", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(booking)
+        });
+
+        if (!response.ok) {
+            throw new Error("Booking failed");
+        }
+
+        const savedBooking = await response.json();
+
+        // Display professional confirmation
+        document.getElementById("booking-container").style.display = "none";
+
+        document.body.insertAdjacentHTML("beforeend", `
+            <div class="confirmation">
+
+                <div class="success-icon">✓</div>
+
+                <h1>Booking Confirmed!</h1>
+
+                <p>Your service booking has been successfully submitted.</p>
+
+                <div class="confirmation-details">
+
+                    <p><strong>Booking ID:</strong> ${savedBooking.id}</p>
+
+                    <p><strong>Customer:</strong> ${escapeHTML(customerName)}</p>
+
+                    <p><strong>Service:</strong> ${escapeHTML(serviceType)}</p>
+
+                    <p><strong>Professional ID:</strong> ${providerId}</p>
+
+                    <p><strong>Booking Date:</strong> ${escapeHTML(bookingDate)}</p>
+
+                    <p><strong>Address:</strong> ${escapeHTML(address)}</p>
+
+                    <p><strong>Booking Status:</strong>
+                        <span class="booking-status">PENDING</span>
+                    </p>
+
+                </div>
+
+                <button onclick="window.location.href='my-bookings.html'">
+                    View My Bookings
+                </button>
+
+                <button class="home-button" onclick="window.location.href='/'">
+                    Back to Home
+                </button>
+
+            </div>
+        `);
+
+    } catch (error) {
+
+        alert("Unable to save booking. Please try again.");
+
+        submitButton.disabled = false;
+        submitButton.textContent = "Confirm Booking";
+
+        console.error(error);
+    }
+
+});
+
+// Escape special characters
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, function(char) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        }[char];
+    });
+}
+
+</script>
+
+</body>
+</html>

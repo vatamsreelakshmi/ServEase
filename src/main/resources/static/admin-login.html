@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login | ServEase</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>ServEase Admin Login</h2>
+
+        <form id="adminForm">
+            <input type="text" id="username" placeholder="Admin Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <p id="message"></p>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("adminForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (username === "admin" && password === "admin123") {
+                window.location.href = "/admin-dashboard.html";
+            } else {
+                document.getElementById("message").textContent = "Invalid login!";
+            }
+        });
+    </script>
+</body>
+</html>
