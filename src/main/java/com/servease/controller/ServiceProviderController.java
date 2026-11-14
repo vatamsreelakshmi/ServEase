@@ -3,6 +3,8 @@ package com.servease.controller;
 import com.servease.entity.ServiceProvider;
 import com.servease.repository.ServiceProviderRepository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import java.util.Map;
 
 import java.util.List;
 
@@ -13,9 +15,22 @@ public class ServiceProviderController {
 
     private final ServiceProviderRepository providerRepository;
 
-    public ServiceProviderController(ServiceProviderRepository providerRepository) {
-        this.providerRepository = providerRepository;
+    private final JdbcTemplate jdbcTemplate;
+
+public ServiceProviderController(ServiceProviderRepository providerRepository,
+                                 JdbcTemplate jdbcTemplate) {
+    this.providerRepository = providerRepository;
+    this.jdbcTemplate = jdbcTemplate;
+}
     }
+    @GetMapping("/database-check")
+public Map<String, Object> databaseCheck() {
+    return jdbcTemplate.queryForMap(
+        "SELECT DATABASE() AS database_name, " +
+        "@@hostname AS database_host, " +
+        "(SELECT COUNT(*) FROM service_providers) AS provider_count"
+    );
+}
 
     @PostMapping
     public ServiceProvider addProvider(@RequestBody ServiceProvider provider) {
