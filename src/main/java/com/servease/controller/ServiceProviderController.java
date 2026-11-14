@@ -23,7 +23,7 @@ public ServiceProviderController(ServiceProviderRepository providerRepository,
     this.jdbcTemplate = jdbcTemplate;
 }
     }
-    @GetMapping("/database-check")
+    @GetMapping("/db/check")
 public Map<String, Object> databaseCheck() {
     return jdbcTemplate.queryForMap(
         "SELECT DATABASE() AS database_name, " +
